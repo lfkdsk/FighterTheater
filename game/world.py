@@ -1,7 +1,9 @@
+from random import randint
+
 from gameobjects.vector2 import Vector2
 from pytmx.util_pygame import load_pygame
 
-from game_funcs import draw_background_with_tiled_map
+from game_funcs import draw_background_with_tiled_map, initial_heroes, create_random_store
 from settings import game_settings
 
 
@@ -9,8 +11,10 @@ class World(object):
     def __init__(self):
         self.entities = {}
         self.entity_id = 0
+        self.energy_stores = {}
         self.game_map = load_pygame(game_settings.map_dir)
-
+        # initial double-side heroes
+        initial_heroes(self)
         # self.background.fill((255, 255, 255))
         # pygame.draw.circle(self.background, (200, 255, 200), NEST_POSITION, int(NEST_SIZE))
 
@@ -27,6 +31,11 @@ class World(object):
             return self.entities[entity_id]
         else:
             return None
+
+    def random_emit(self):
+        if randint(1, 20) == 10 and len(self.energy_stores) < 40:
+            store = create_random_store(self)
+            self.energy_stores[store.id] = store
 
     def process(self, time_passed):
         time_passed_seconds = time_passed / 1000.0

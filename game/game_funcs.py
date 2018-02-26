@@ -4,6 +4,7 @@ from random import randint
 import pygame
 from gameobjects.vector2 import Vector2
 
+from entities import EnergyStore
 from game.entities import Hero
 from settings import game_settings
 
@@ -35,6 +36,13 @@ def load_alpha_image(resource_img):
 green_hero_img = load_alpha_image('green_hero.png')
 red_hero_img = load_alpha_image('red_hero.png')
 
+green_energy_img = load_alpha_image('green_energy.png')
+red_energy_img = load_alpha_image('red_energy.png')
+energy_imgs = {
+    'green': green_energy_img,
+    'red': red_energy_img,
+}
+
 
 def get_left_random_location():
     x, y = game_settings.left_home_location
@@ -62,6 +70,17 @@ def create_hero(world, hero_type):
     hero.location = location
     world.add_entity(hero)
     return hero
+
+
+def create_random_store(world):
+    rand_type = 0 if randint(0, 100) % 2 == 0 else 1
+    energy_img, energy_type = energy_imgs.values()[rand_type], energy_imgs.keys()[rand_type]
+    energy_store = EnergyStore(world, energy_img, energy_type)
+    w, h = game_settings.screen_size
+    energy_store.location = Vector2(randint(60, w - 60), randint(60, h - 60))
+    world.add_entity(energy_store)
+
+    return energy_store
 
 
 def has_close_entities(world, item):

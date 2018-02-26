@@ -17,16 +17,15 @@ def game_loop():
         32,
     )
     game_world = World()
-
     clock = pygame.time.Clock()
-    initial_heroes(game_world)
+
     while not game_exit:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_exit = True
         time_passed = clock.tick(30)
 
-        # draw background
+        game_world.random_emit()
         game_world.process(time_passed)
         game_world.render(game_screen)
 

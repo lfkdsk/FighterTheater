@@ -35,8 +35,9 @@ class Entity(object):
 
 
 class EnergyStore(Entity):
-    def __init__(self, world, image):
+    def __init__(self, world, image, energy_type):
         super(EnergyStore, self).__init__(world, "energy", image)
+        self.energy_type = energy_type
 
 
 class Hero(Entity):
