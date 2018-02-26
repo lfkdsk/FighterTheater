@@ -4,7 +4,6 @@ from settings import game_settings
 
 
 class Entity(object):
-
     def __init__(self, world, name, image):
         self.id = 0
         self.name = name

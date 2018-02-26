@@ -60,15 +60,19 @@ def create_hero(world, hero_type):
     if hero_type == 'green':
         location = get_left_random_location()
         image = green_hero_img
+        hero_name = 'green-hero'
     elif hero_type == 'red':
         location = get_right_random_location()
         image = red_hero_img
+        hero_name = 'red-hero'
     else:
         raise KeyError("error type")
 
     hero = Hero(world, image, None, hero_type)
     hero.location = location
+    hero.name = hero_name
     world.add_entity(hero)
+
     return hero
 
 
