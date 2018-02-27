@@ -14,5 +14,5 @@ pip install -r requirements.txt
 run:
 
 ``` shell
-python
+python game
 ```
