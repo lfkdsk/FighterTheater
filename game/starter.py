@@ -1,7 +1,5 @@
 import pygame
 
-from entities import Hero
-from game.game_funcs import load_alpha_image, initial_heroes
 from settings import game_settings
 from world import World
 

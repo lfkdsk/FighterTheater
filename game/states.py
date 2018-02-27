@@ -21,6 +21,11 @@ class State(object):
     def exit_actions(self):
         pass
 
+    def __unicode__(self):
+        return self.name
+
+    __str__ = __unicode__
+
 
 class StateMachine(object):
     def __init__(self):
@@ -33,6 +38,7 @@ class StateMachine(object):
     def think(self):
         if self.active_state is None:
             return
+
         self.active_state.do_actions()
         new_state_name = self.active_state.check_conditions()
 
@@ -50,7 +56,7 @@ class StateMachine(object):
 HERO_STATES = (
     'exploring',
     'seeking',
-    'hunting',
+    'fighting',
     'delivering'
 )
 
@@ -71,12 +77,6 @@ class HeroStateExploring(State):
     def check_conditions(self):
         location = self.hero.location
         world = self.hero.world
-        energy_store = world.get_close_energy(self.hero.location)
-
-        # exploring --> seeking
-        if energy_store is not None:
-            self.hero.energy_id = energy_store.id
-            return HERO_STATES[1]
 
         enemy_type = self.hero.get_enemy_type()
         enemy = world.get_close_entity(
@@ -89,6 +89,13 @@ class HeroStateExploring(State):
         if enemy is not None and location.get_distance_to(enemy.location) < 100.:
             self.hero.enemy_id = enemy.id
             return HERO_STATES[2]
+
+        energy_store = world.get_close_energy(self.hero.location)
+
+        # exploring --> seeking
+        if energy_store is not None:
+            self.hero.energy_id = energy_store.id
+            return HERO_STATES[1]
 
         return None
 
@@ -106,16 +113,17 @@ class HeroStateSeeking(State):
     def check_conditions(self):
         world = self.hero.world
         location = self.hero.location
-        energy_store = world.get(self.hero.energy_id)
+        energy_store = world.get_energy_store(self.hero.energy_id)
 
         if energy_store is None:
             return HERO_STATES[0]
 
         if location.get_distance_to(energy_store.location) < 5.0:
             self.hero.carry(energy_store.image)
-            self.hero.world.remove_entity(energy_store)
+            self.hero.world.remove_energy_store(energy_store)
             return HERO_STATES[3]
 
+        self.hero.destination = energy_store.location
         return None
 
     def entry_actions(self):
@@ -131,10 +139,13 @@ class HeroStateDelivering(State):
         self.hero = hero
 
     def check_conditions(self):
+        location = self.hero.location
         home_location = Vector2(*self.hero.get_home_location())
-        if home_location.get_distance_to(self.hero.location) < game_settings.search_range:
+        distance_to_home = home_location.get_distance_to(location)
+
+        if distance_to_home < game_settings.drop_range or not self.hero.in_center():
             if randint(1, 10) == 1:
-                self.hero.drop(self.hero.world.screen)
+                self.hero.drop(self.hero.world.background)
                 return HERO_STATES[0]
 
         return None
@@ -146,7 +157,7 @@ class HeroStateDelivering(State):
         self.hero.destination = home_location + random_offset
 
 
-class HeroStateHunting(State):
+class HeroStateFighting(State):
     def __init__(self, hero):
         State.__init__(self, HERO_STATES[2])
         self.hero = hero

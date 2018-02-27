@@ -14,6 +14,8 @@ class World(object):
         self.energy_stores = {}
         self.game_map = load_pygame(game_settings.map_dir)
         self.screen = screen
+        self.background = screen.subsurface((0, 0, game_settings.screen_width, game_settings.screen_height))
+        # self.background.bilt(self.screen)
         # initial double-side heroes
         initial_heroes(self)
         # self.background.fill((255, 255, 255))
@@ -45,6 +47,9 @@ class World(object):
 
     def render(self, surface):
         draw_background_with_tiled_map(surface, self.game_map)
+        for entity in self.energy_stores.values():
+            entity.render(surface)
+
         for entity in self.entities.values():
             entity.render(surface)
 
@@ -64,3 +69,18 @@ class World(object):
             if distance < search_range:
                 return entity
         return None
+
+    def get_energy_store(self, energy_id):
+        if energy_id in self.energy_stores.keys():
+            return self.energy_stores[energy_id]
+
+        return None
+
+    def add_energy_store(self, store):
+        self.energy_stores[self.entity_id] = store
+        store.id = self.entity_id
+        self.entity_id += 1
+
+    def remove_energy_store(self, store):
+        if store in self.energy_stores.values():
+            del self.energy_stores[store.id]

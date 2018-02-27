@@ -16,10 +16,12 @@ class Settings(object):
         self.max_health = 25
         self.health_color = (255, 0, 0)
         self.health_color_cover = (0, 255, 0)
-        self.left_home_location = (200, 585)
-        self.right_home_location = (780, 585)
-        self.default_hero_num = 10
+        self.left_home_location = (65, self.screen_height / 2)
+        self.right_home_location = (self.screen_width - 65, self.screen_height / 2)
+        self.default_hero_num = 5
+        self.default_store_num = 10
         self.search_range = 100.0
+        self.drop_range = 30.0
 
 
 game_settings = Settings()

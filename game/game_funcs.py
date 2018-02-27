@@ -4,8 +4,6 @@ from random import randint
 import pygame
 from gameobjects.vector2 import Vector2
 
-from entities import EnergyStore
-from game.entities import Hero
 from settings import game_settings
 from states import HERO_STATES
 
@@ -32,6 +30,18 @@ def load_alpha_image(resource_img):
     )
 
     return pygame.image.load(path)
+
+
+def display_message(text, color, screen, center):
+    largeText = pygame.font.Font(None, 32)
+    TextSurf, TextRect = text_objects(text, largeText, color)
+    TextRect.center = center
+    screen.blit(TextSurf, TextRect)
+
+
+def text_objects(text, font, color):
+    textSurface = font.render(text, True, color)
+    return textSurface, textSurface.get_rect()
 
 
 green_hero_img = load_alpha_image('green_hero.png')
@@ -68,7 +78,7 @@ def create_hero(world, hero_type):
         hero_name = 'red-hero'
     else:
         raise KeyError("error type")
-
+    from game.entities import Hero
     hero = Hero(world, image, None, hero_type)
     hero.location = location
     hero.name = hero_name
@@ -81,10 +91,11 @@ def create_hero(world, hero_type):
 def create_random_store(world):
     rand_type = 0 if randint(0, 100) % 2 == 0 else 1
     energy_img, energy_type = energy_imgs.values()[rand_type], energy_imgs.keys()[rand_type]
+    from entities import EnergyStore
     energy_store = EnergyStore(world, energy_img, energy_type)
     w, h = game_settings.screen_size
     energy_store.location = Vector2(randint(60, w - 60), randint(60, h - 60))
-    world.add_entity(energy_store)
+    world.add_energy_store(energy_store)
 
     return energy_store
 
@@ -111,3 +122,7 @@ def initial_heroes(world):
         item = create_hero(world, 'red')
         while has_close_entities(world, item):
             item.location = get_right_random_location()
+
+    store_nums = game_settings.default_store_num
+    for _ in range(store_nums):
+        create_random_store(world)

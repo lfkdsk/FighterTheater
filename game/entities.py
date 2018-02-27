@@ -1,3 +1,4 @@
+from game.game_funcs import display_message
 from states import *
 
 
@@ -43,7 +44,7 @@ class Hero(Entity):
         exploring_state = HeroStateExploring(self)
         seeking_state = HeroStateSeeking(self)
         delivering_state = HeroStateDelivering(self)
-        hunting_state = HeroStateHunting(self)
+        hunting_state = HeroStateFighting(self)
         self.brain.add_state(exploring_state)
         self.brain.add_state(seeking_state)
         self.brain.add_state(delivering_state)
@@ -64,14 +65,17 @@ class Hero(Entity):
         self.carry_energy_store = None
 
     def bitten(self):
-        self.health -= 1
+        self.health -= 2
         if self.health <= 0:
             self.speed = 0.
             self.image = self.dead_image
         self.speed = 140.
 
     def get_enemy_type(self):
-        return 'green-hero' if self.hero_type == 'green' else 'red-hero'
+        return 'red-hero' if self.hero_type == 'green' else 'green-hero'
+
+    def in_center(self):
+        return game_settings.right_home_location[0] > self.location.x > game_settings.left_home_location[0]
 
     def get_home_location(self):
         if self.hero_type == 'green':
@@ -81,6 +85,7 @@ class Hero(Entity):
 
     def render(self, surface):
         self._draw_health_number(surface)
+        self._draw_state_machine(surface)
         Entity.render(self, surface)
 
         if not self.carry_energy_store:
@@ -105,4 +110,16 @@ class Hero(Entity):
         surface.fill(
             game_settings.health_color_cover,
             (bar_x, bar_y, self.health, 4),
+        )
+
+    def _draw_state_machine(self, surface):
+        x, y = self.location
+        w, h = self.image.get_size()
+        center = (x, y - h / 2 - 20)
+
+        display_message(
+            text=str(self.brain.active_state),
+            color=(0, 0, 0),
+            screen=surface,
+            center=center,
         )
