@@ -1,6 +1,4 @@
-from gameobjects.vector2 import Vector2
-
-from settings import game_settings
+from states import *
 
 
 class Entity(object):
@@ -12,7 +10,7 @@ class Entity(object):
         self.location = Vector2(game_settings.screen_width / 2, game_settings.screen_height / 2)
         self.destination = Vector2(0, 0)
         self.speed = 0.0
-        # self.brain = StateMachine()
+        self.brain = StateMachine()
         self.size = self.image.get_size()
 
     def render(self, surface):
@@ -24,7 +22,7 @@ class Entity(object):
         )
 
     def process(self, time_passed):
-        # self.brain.think()
+        self.brain.think()
         if self.speed > 0.0 and self.location != self.destination:
             vec_to_destination = self.destination - self.location
             distance_to_destination = vec_to_destination.get_length()
@@ -42,14 +40,14 @@ class EnergyStore(Entity):
 class Hero(Entity):
     def __init__(self, world, image, dead_image, hero_type):
         super(Hero, self).__init__(world, "hero", image)
-        # exploring_state = AntStateExploring(self)
-        # seeking_state = AntStateSeeking(self)
-        # delivering_state = AntStateDelivering(self)
-        # hunting_state = AntStateHunting(self)
-        # self.brain.add_state(exploring_state)
-        # self.brain.add_state(seeking_state)
-        # self.brain.add_state(delivering_state)
-        # self.brain.add_state(hunting_state)
+        exploring_state = HeroStateExploring(self)
+        seeking_state = HeroStateSeeking(self)
+        delivering_state = HeroStateDelivering(self)
+        hunting_state = HeroStateHunting(self)
+        self.brain.add_state(exploring_state)
+        self.brain.add_state(seeking_state)
+        self.brain.add_state(delivering_state)
+        self.brain.add_state(hunting_state)
         self.dead_image = dead_image
         self.health = 25
         self.carry_energy_store = None
@@ -71,6 +69,15 @@ class Hero(Entity):
             self.speed = 0.
             self.image = self.dead_image
         self.speed = 140.
+
+    def get_enemy_type(self):
+        return 'green-hero' if self.hero_type == 'green' else 'red-hero'
+
+    def get_home_location(self):
+        if self.hero_type == 'green':
+            return game_settings.left_home_location
+
+        return game_settings.right_home_location
 
     def render(self, surface):
         self._draw_health_number(surface)

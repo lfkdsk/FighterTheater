@@ -8,11 +8,12 @@ from settings import game_settings
 
 
 class World(object):
-    def __init__(self):
+    def __init__(self, screen):
         self.entities = {}
         self.entity_id = 0
         self.energy_stores = {}
         self.game_map = load_pygame(game_settings.map_dir)
+        self.screen = screen
         # initial double-side heroes
         initial_heroes(self)
         # self.background.fill((255, 255, 255))
@@ -29,8 +30,8 @@ class World(object):
     def get(self, entity_id):
         if entity_id in self.entities:
             return self.entities[entity_id]
-        else:
-            return None
+
+        return None
 
     def random_emit(self):
         if randint(1, 20) == 10 and len(self.energy_stores) < 40:
@@ -47,11 +48,19 @@ class World(object):
         for entity in self.entities.values():
             entity.render(surface)
 
-    def get_close_entity(self, name, location, range=100.):
+    def get_close_entity(self, name, location, search_range=100.0):
         location = Vector2(*location)
         for entity in self.entities.values():
             if entity.name == name:
                 distance = location.get_distance_to(entity.location)
-                if distance < range:
+                if distance < search_range:
                     return entity
+        return None
+
+    def get_close_energy(self, location, search_range=100.0):
+        location = Vector2(*location)
+        for entity in self.energy_stores.values():
+            distance = location.get_distance_to(entity.location)
+            if distance < search_range:
+                return entity
         return None

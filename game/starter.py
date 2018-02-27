@@ -16,7 +16,7 @@ def game_loop():
         pygame.DOUBLEBUF | pygame.HWSURFACE,
         32,
     )
-    game_world = World()
+    game_world = World(game_screen)
     clock = pygame.time.Clock()
 
     while not game_exit:

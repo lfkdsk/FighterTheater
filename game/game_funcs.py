@@ -7,6 +7,7 @@ from gameobjects.vector2 import Vector2
 from entities import EnergyStore
 from game.entities import Hero
 from settings import game_settings
+from states import HERO_STATES
 
 
 def draw_background_with_tiled_map(game_screen, game_map):
@@ -39,8 +40,8 @@ red_hero_img = load_alpha_image('red_hero.png')
 green_energy_img = load_alpha_image('green_energy.png')
 red_energy_img = load_alpha_image('red_energy.png')
 energy_imgs = {
-    'green': green_energy_img,
-    'red': red_energy_img,
+    'green-store': green_energy_img,
+    'red-store': red_energy_img,
 }
 
 
@@ -71,6 +72,7 @@ def create_hero(world, hero_type):
     hero = Hero(world, image, None, hero_type)
     hero.location = location
     hero.name = hero_name
+    hero.brain.set_state(HERO_STATES[0])
     world.add_entity(hero)
 
     return hero

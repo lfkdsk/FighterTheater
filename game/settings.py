@@ -19,6 +19,7 @@ class Settings(object):
         self.left_home_location = (200, 585)
         self.right_home_location = (780, 585)
         self.default_hero_num = 10
+        self.search_range = 100.0
 
 
 game_settings = Settings()

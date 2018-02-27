@@ -47,38 +47,147 @@ class StateMachine(object):
         self.active_state.entry_actions()
 
 
-ANT_STATES = (
+HERO_STATES = (
     'exploring',
-    'leaf',
+    'seeking',
+    'hunting',
+    'delivering'
 )
 
 
 class HeroStateExploring(State):
     def __init__(self, hero):
-        State.__init__(self, 'exploring')
+        State.__init__(self, HERO_STATES[0])
         self.hero = hero
 
     def random_destination(self):
         w, h = game_settings.screen_size
-        self.hero.destination = Vector2(randint(0, w), randint(0, h))
+        self.hero.destination = Vector2(randint(60, w - 60), randint(60, h - 60))
 
     def do_actions(self):
         if randint(1, 20) == 1:
             self.random_destination()
 
     def check_conditions(self):
-        energy_store = self.hero.world.get_close_entity("energy", self.hero.location)
+        location = self.hero.location
+        world = self.hero.world
+        energy_store = world.get_close_energy(self.hero.location)
+
+        # exploring --> seeking
         if energy_store is not None:
             self.hero.energy_id = energy_store.id
-            return "seeking"
+            return HERO_STATES[1]
 
-        # spider = self.hero.world.get_close_entity("green-hero", NEST_POSITION, NEST_SIZE)
-        # if spider is not None:
-        #     if self.hero.location.get_distance_to(spider.location) < 100.:
-        #         self.hero.spider_id = spider.id
-        #         return "hunting"
+        enemy_type = self.hero.get_enemy_type()
+        enemy = world.get_close_entity(
+            enemy_type,
+            location,
+            game_settings.search_range,
+        )
+
+        # exploring --> fighting
+        if enemy is not None and location.get_distance_to(enemy.location) < 100.:
+            self.hero.enemy_id = enemy.id
+            return HERO_STATES[2]
+
         return None
 
     def entry_actions(self):
         self.hero.speed = 120. + randint(-30, 30)
         self.random_destination()
+
+
+class HeroStateSeeking(State):
+    def __init__(self, hero):
+        State.__init__(self, HERO_STATES[1])
+        self.hero = hero
+        self.energy_id = None
+
+    def check_conditions(self):
+        world = self.hero.world
+        location = self.hero.location
+        energy_store = world.get(self.hero.energy_id)
+
+        if energy_store is None:
+            return HERO_STATES[0]
+
+        if location.get_distance_to(energy_store.location) < 5.0:
+            self.hero.carry(energy_store.image)
+            self.hero.world.remove_entity(energy_store)
+            return HERO_STATES[3]
+
+        return None
+
+    def entry_actions(self):
+        energy_store = self.hero.world.get(self.hero.energy_id)
+        if energy_store is not None:
+            self.hero.destination = energy_store.location
+            self.hero.speed = 160. + randint(-20, 20)
+
+
+class HeroStateDelivering(State):
+    def __init__(self, hero):
+        State.__init__(self, HERO_STATES[3])
+        self.hero = hero
+
+    def check_conditions(self):
+        home_location = Vector2(*self.hero.get_home_location())
+        if home_location.get_distance_to(self.hero.location) < game_settings.search_range:
+            if randint(1, 10) == 1:
+                self.hero.drop(self.hero.world.screen)
+                return HERO_STATES[0]
+
+        return None
+
+    def entry_actions(self):
+        home_location = Vector2(*self.hero.get_home_location())
+        self.hero.speed = 60.0
+        random_offset = Vector2(randint(-20, 20), randint(-20, 20))
+        self.hero.destination = home_location + random_offset
+
+
+class HeroStateHunting(State):
+    def __init__(self, hero):
+        State.__init__(self, HERO_STATES[2])
+        self.hero = hero
+        self.got_kill = False
+
+    def do_actions(self):
+        world = self.hero.world
+        enemy = world.get(self.hero.enemy_id)
+        if enemy is None:
+            return
+
+        self.hero.destination = enemy.location
+        offset = self.hero.location.get_distance_to(enemy.location) < 15.
+        random_seed = randint(1, 5) == 1
+
+        if offset and random_seed:
+            enemy.bitten()
+            if enemy.health <= 0:
+                self.hero.carry(enemy.image)
+                self.hero.world.remove_entity(enemy)
+                self.got_kill = True
+
+    def check_conditions(self):
+        if self.got_kill:
+            return HERO_STATES[3]
+
+        enemy = self.hero.world.get(self.hero.enemy_id)
+
+        if enemy is None:
+            return HERO_STATES[0]
+
+        search_range = game_settings.search_range
+        home_location = self.hero.get_home_location()
+
+        if enemy.location.get_distance_to(home_location) > search_range * 3:
+            return HERO_STATES[0]
+
+        return None
+
+    def entry_actions(self):
+        self.speed = 160. + randint(0, 50)
+
+    def exit_actions(self):
+        self.got_kill = False
