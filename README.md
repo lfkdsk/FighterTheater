@@ -1,5 +1,7 @@
 # StageFlight
 
+![show](art/show.gif)
+
 ## How to use?
 
 start virtural env
