@@ -67,7 +67,7 @@ class HeroStateExploring(State):
         self.hero = hero
 
     def random_destination(self):
-        w, h = game_settings.screen_size
+        w, h = game_settings.SCREEN_SIZE
         self.hero.destination = Vector2(randint(60, w - 60), randint(60, h - 60))
 
     def do_actions(self):
@@ -82,7 +82,7 @@ class HeroStateExploring(State):
         enemy = world.get_close_entity(
             enemy_type,
             location,
-            game_settings.search_range,
+            game_settings.DEFAULT_SEARCH_RANGE,
         )
 
         # exploring --> fighting
@@ -143,9 +143,10 @@ class HeroStateDelivering(State):
         home_location = Vector2(*self.hero.get_home_location())
         distance_to_home = home_location.get_distance_to(location)
 
-        if distance_to_home < game_settings.drop_range or not self.hero.in_center():
+        if distance_to_home < game_settings.DROP_RANGE or not self.hero.in_center():
             if randint(1, 10) == 1:
                 self.hero.drop(self.hero.world.background)
+                self.hero.add_energy_score()
                 return HERO_STATES[0]
 
         return None
@@ -189,7 +190,7 @@ class HeroStateFighting(State):
         if enemy is None:
             return HERO_STATES[0]
 
-        if self.hero.health < 2 / 3 * game_settings.max_health:
+        if self.hero.health < 2 / 3 * game_settings.MAX_HEALTH:
             self.hero.destination = self.hero.get_home_location()
             return HERO_STATES[0]
 

@@ -1,7 +1,8 @@
 from gameobjects.vector2 import Vector2
 from pytmx.util_pygame import load_pygame
 
-from game_funcs import draw_background_with_tiled_map, initial_heroes, create_random_heroes, create_random_stores
+from game_funcs import draw_background_with_tiled_map, initial_heroes, create_random_heroes, create_random_stores, \
+    render_score_message
 from settings import game_settings
 
 
@@ -10,21 +11,23 @@ class World(object):
         self.entities = {}
         self.entity_id = 0
         self.energy_stores = {}
-        self.game_map = load_pygame(game_settings.map_dir)
+        self.game_map = load_pygame(game_settings.MAP_DIR)
         self.screen = screen
-        self.background = screen.subsurface((0, 0, game_settings.screen_width, game_settings.screen_height))
-        # self.background.bilt(self.screen)
+        self.background = screen.subsurface(
+            (0, 0, game_settings.SCREEN_WIDTH, game_settings.SCREEN_HEIGHT),
+        )
+        self.hero_nums = {"green": 0, "red": 0}
         # initial double-side heroes
         initial_heroes(self)
-        # self.background.fill((255, 255, 255))
-        # pygame.draw.circle(self.background, (200, 255, 200), NEST_POSITION, int(NEST_SIZE))
 
     def add_entity(self, entity):
         self.entities[self.entity_id] = entity
         entity.id = self.entity_id
         self.entity_id += 1
+        self.hero_nums[entity.hero_type] += 1
 
     def remove_entity(self, entity):
+        self.hero_nums[entity.hero_type] -= 1
         del self.entities[entity.id]
 
     def get(self, entity_id):
@@ -44,6 +47,9 @@ class World(object):
 
     def render(self, surface):
         draw_background_with_tiled_map(surface, self.game_map)
+        render_score_message(surface)
+
+        # render entities
         for entity in self.energy_stores.values():
             entity.render(surface)
 
@@ -83,3 +89,9 @@ class World(object):
     def remove_energy_store(self, store):
         if store in self.energy_stores.values():
             del self.energy_stores[store.id]
+
+    def min_hero_type(self):
+        if self.hero_nums['red'] < self.hero_nums['green']:
+            return 'red'
+
+        return 'green'

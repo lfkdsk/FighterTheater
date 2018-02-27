@@ -25,15 +25,15 @@ def draw_background_with_tiled_map(game_screen, game_map):
 
 def load_alpha_image(resource_img):
     path = os.path.join(
-        game_settings.base_dir,
+        game_settings.BASE_DIR,
         'img/{}'.format(resource_img),
     )
 
     return pygame.image.load(path)
 
 
-def display_message(text, color, screen, center):
-    largeText = pygame.font.Font(None, 32)
+def display_message(screen, text, size, color, center):
+    largeText = pygame.font.Font(None, size)
     TextSurf, TextRect = text_objects(text, largeText, color)
     TextRect.center = center
     screen.blit(TextSurf, TextRect)
@@ -58,14 +58,14 @@ ENERGY_IMAGES = {
 
 
 def get_left_random_location():
-    x, y = game_settings.left_home_location
-    randX, randY = randint(x, x + 80), randint(80, game_settings.screen_height - 40)
+    x, y = game_settings.LEFT_HOME_LOCATION
+    randX, randY = randint(x, x + 80), randint(80, game_settings.SCREEN_HEIGHT - 40)
     return Vector2(randX, randY)
 
 
 def get_right_random_location():
-    x, y = game_settings.right_home_location
-    randX, randY = randint(x - 80, x), randint(80, game_settings.screen_height - 40)
+    x, y = game_settings.RIGHT_HOME_LOCATION
+    randX, randY = randint(x - 80, x), randint(80, game_settings.SCREEN_HEIGHT - 40)
     return Vector2(randX, randY)
 
 
@@ -95,7 +95,7 @@ def create_random_store(world):
     energy_img, energy_type = ENERGY_IMAGES.values()[rand_type], ENERGY_IMAGES.keys()[rand_type]
     from entities import EnergyStore
     energy_store = EnergyStore(world, energy_img, energy_type)
-    w, h = game_settings.screen_size
+    w, h = game_settings.SCREEN_SIZE
     energy_store.location = Vector2(randint(60, w - 60), randint(60, h - 60))
     world.add_energy_store(energy_store)
 
@@ -103,8 +103,9 @@ def create_random_store(world):
 
 
 def create_random_heroes(world):
-    if randint(0, 100) == 80:
+    if randint(0, 100) == 80 and len(world.entities) < game_settings.MAX_ENTITIES:
         create_hero(world, HERO_TYPES[randint(0, 1)])
+        create_hero(world, world.min_hero_type())
 
 
 def create_random_stores(world):
@@ -124,18 +125,37 @@ def has_close_entities(world, item):
 
 
 def initial_heroes(world):
-    green_hero_nums = game_settings.default_hero_num
+    green_hero_nums = game_settings.DEFAULT_HERO_NUM
     for _ in range(green_hero_nums):
         item = create_hero(world, 'green')
         while has_close_entities(world, item):
             item.location = get_left_random_location()
 
-    red_hero_nums = game_settings.default_hero_num
+    red_hero_nums = game_settings.DEFAULT_HERO_NUM
     for _ in range(red_hero_nums):
         item = create_hero(world, 'red')
         while has_close_entities(world, item):
             item.location = get_right_random_location()
 
-    store_nums = game_settings.default_store_num
+    store_nums = game_settings.DEFAULT_HERO_NUM
     for _ in range(store_nums):
         create_random_store(world)
+
+
+def render_score_message(surface):
+    # render scores
+    display_message(
+        text='G:{}'.format(game_settings.left_score),
+        color=(255, 255, 255),
+        size=32,
+        center=(40, 20),
+        screen=surface
+    )
+
+    display_message(
+        text='R:{}'.format(game_settings.right_score),
+        color=(255, 255, 255),
+        size=32,
+        center=(40, 50),
+        screen=surface
+    )

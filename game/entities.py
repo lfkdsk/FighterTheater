@@ -8,7 +8,7 @@ class Entity(object):
         self.name = name
         self.world = world
         self.image = image
-        self.location = Vector2(game_settings.screen_width / 2, game_settings.screen_height / 2)
+        self.location = Vector2(game_settings.SCREEN_WIDTH / 2, game_settings.SCREEN_HEIGHT / 2)
         self.destination = Vector2(0, 0)
         self.speed = 0.0
         self.brain = StateMachine()
@@ -75,13 +75,19 @@ class Hero(Entity):
         return 'red-hero' if self.hero_type == 'green' else 'green-hero'
 
     def in_center(self):
-        return game_settings.right_home_location[0] > self.location.x > game_settings.left_home_location[0]
+        return game_settings.RIGHT_HOME_LOCATION[0] > self.location.x > game_settings.LEFT_HOME_LOCATION[0]
 
     def get_home_location(self):
         if self.hero_type == 'green':
-            return game_settings.left_home_location
+            return game_settings.LEFT_HOME_LOCATION
 
-        return game_settings.right_home_location
+        return game_settings.RIGHT_HOME_LOCATION
+
+    def add_energy_score(self):
+        if self.hero_type == 'green':
+            game_settings.left_score += game_settings.DEFAULT_SCORE
+        else:
+            game_settings.right_score += game_settings.DEFAULT_SCORE
 
     def render(self, surface):
         self._draw_health_number(surface)
@@ -104,11 +110,11 @@ class Hero(Entity):
         bar_x, bar_y = x - w / 2, y - h / 2 - 6
 
         surface.fill(
-            game_settings.health_color,
-            (bar_x, bar_y, game_settings.max_health, 4),
+            game_settings.HEALTH_COLOR,
+            (bar_x, bar_y, game_settings.MAX_HEALTH, 4),
         )
         surface.fill(
-            game_settings.health_color_cover,
+            game_settings.HEALTH_COVER_COLOR,
             (bar_x, bar_y, self.health, 4),
         )
 
@@ -122,4 +128,5 @@ class Hero(Entity):
             color=(0, 0, 0),
             screen=surface,
             center=center,
+            size=32
         )

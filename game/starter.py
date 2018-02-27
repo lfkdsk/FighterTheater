@@ -10,7 +10,7 @@ def game_loop():
     pygame.init()
     pygame.display.set_caption('Python Game')
     game_screen = pygame.display.set_mode(
-        (game_settings.screen_width, game_settings.screen_height),
+        (game_settings.SCREEN_WIDTH, game_settings.SCREEN_HEIGHT),
         pygame.DOUBLEBUF | pygame.HWSURFACE,
         32,
     )
