@@ -47,9 +47,11 @@ def text_objects(text, font, color):
 green_hero_img = load_alpha_image('green_hero.png')
 red_hero_img = load_alpha_image('red_hero.png')
 
+HERO_TYPES = ('red', 'green')
+
 green_energy_img = load_alpha_image('green_energy.png')
 red_energy_img = load_alpha_image('red_energy.png')
-energy_imgs = {
+ENERGY_IMAGES = {
     'green-store': green_energy_img,
     'red-store': red_energy_img,
 }
@@ -90,7 +92,7 @@ def create_hero(world, hero_type):
 
 def create_random_store(world):
     rand_type = 0 if randint(0, 100) % 2 == 0 else 1
-    energy_img, energy_type = energy_imgs.values()[rand_type], energy_imgs.keys()[rand_type]
+    energy_img, energy_type = ENERGY_IMAGES.values()[rand_type], ENERGY_IMAGES.keys()[rand_type]
     from entities import EnergyStore
     energy_store = EnergyStore(world, energy_img, energy_type)
     w, h = game_settings.screen_size
@@ -98,6 +100,17 @@ def create_random_store(world):
     world.add_energy_store(energy_store)
 
     return energy_store
+
+
+def create_random_heroes(world):
+    if randint(0, 100) == 80:
+        create_hero(world, HERO_TYPES[randint(0, 1)])
+
+
+def create_random_stores(world):
+    if randint(1, 20) == 10 and len(world.energy_stores) < 40:
+        store = create_random_store(world)
+        world.energy_stores[store.id] = store
 
 
 def has_close_entities(world, item):

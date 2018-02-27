@@ -5,7 +5,7 @@
 start virtural env
 
 ``` shell
-cd gameobjects-0.03
+cd gameobjects-0.0.3
 python ./setup.py install
 
 pip install -r requirements.txt

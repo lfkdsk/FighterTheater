@@ -1,9 +1,7 @@
-from random import randint
-
 from gameobjects.vector2 import Vector2
 from pytmx.util_pygame import load_pygame
 
-from game_funcs import draw_background_with_tiled_map, initial_heroes, create_random_store
+from game_funcs import draw_background_with_tiled_map, initial_heroes, create_random_heroes, create_random_stores
 from settings import game_settings
 
 
@@ -36,9 +34,8 @@ class World(object):
         return None
 
     def random_emit(self):
-        if randint(1, 20) == 10 and len(self.energy_stores) < 40:
-            store = create_random_store(self)
-            self.energy_stores[store.id] = store
+        create_random_heroes(self)
+        create_random_stores(self)
 
     def process(self, time_passed):
         time_passed_seconds = time_passed / 1000.0
@@ -60,6 +57,7 @@ class World(object):
                 distance = location.get_distance_to(entity.location)
                 if distance < search_range:
                     return entity
+
         return None
 
     def get_close_energy(self, location, search_range=100.0):
@@ -68,6 +66,7 @@ class World(object):
             distance = location.get_distance_to(entity.location)
             if distance < search_range:
                 return entity
+
         return None
 
     def get_energy_store(self, energy_id):

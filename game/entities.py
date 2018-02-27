@@ -85,7 +85,7 @@ class Hero(Entity):
 
     def render(self, surface):
         self._draw_health_number(surface)
-        self._draw_state_machine(surface)
+        # self._draw_state_machine(surface)
         Entity.render(self, surface)
 
         if not self.carry_energy_store:
