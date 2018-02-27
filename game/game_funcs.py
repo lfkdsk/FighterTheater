@@ -46,6 +46,7 @@ def text_objects(text, font, color):
 
 green_hero_img = load_alpha_image('green_hero.png')
 red_hero_img = load_alpha_image('red_hero.png')
+graves_img = load_alpha_image('graves.png')
 
 HERO_TYPES = ('red', 'green')
 
@@ -80,8 +81,9 @@ def create_hero(world, hero_type):
         hero_name = 'red-hero'
     else:
         raise KeyError("error type")
+
     from entities import Hero
-    hero = Hero(world, image, None, hero_type)
+    hero = Hero(world, image, graves_img, hero_type)
     hero.location = location
     hero.name = hero_name
     hero.brain.set_state(HERO_STATES[0])

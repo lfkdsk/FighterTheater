@@ -66,10 +66,20 @@ class Hero(Entity):
 
     def bitten(self):
         self.health -= 2
+        self.speed = 140.
+
         if self.health <= 0:
             self.speed = 0.
             self.image = self.dead_image
-        self.speed = 140.
+
+    def dead(self):
+        x, y = self.location
+        w, h = self.image.get_size()
+        background = self.world.background_layer
+        background.blit(
+            self.dead_image,
+            (x - w, y - h / 2),
+        )
 
     def get_enemy_type(self):
         return 'red-hero' if self.hero_type == 'green' else 'green-hero'
@@ -90,7 +100,9 @@ class Hero(Entity):
             game_settings.right_score += game_settings.DEFAULT_SCORE
 
     def render(self, surface):
-        self._draw_health_number(surface)
+        if self.health > 0:
+            self._draw_health_number(surface)
+
         # self._draw_state_machine(surface)
         Entity.render(self, surface)
 

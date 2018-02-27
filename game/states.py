@@ -140,12 +140,13 @@ class HeroStateDelivering(State):
 
     def check_conditions(self):
         location = self.hero.location
+        world = self.hero.world
         home_location = Vector2(*self.hero.get_home_location())
         distance_to_home = home_location.get_distance_to(location)
 
         if distance_to_home < game_settings.DROP_RANGE or not self.hero.in_center():
             if randint(1, 10) == 1:
-                self.hero.drop(self.hero.world.background)
+                self.hero.drop(world.background_layer)
                 self.hero.add_energy_score()
                 return HERO_STATES[0]
 
@@ -177,8 +178,8 @@ class HeroStateFighting(State):
         if offset and random_seed:
             enemy.bitten()
             if enemy.health <= 0:
-                self.hero.carry(enemy.image)
-                self.hero.world.remove_entity(enemy)
+                enemy.dead()
+                world.remove_entity(enemy)
                 self.got_kill = True
 
     def check_conditions(self):

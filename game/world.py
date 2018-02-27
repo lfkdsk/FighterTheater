@@ -1,8 +1,9 @@
 from gameobjects.vector2 import Vector2
+from pygame.surface import Surface
 from pytmx.util_pygame import load_pygame
 
-from game_funcs import draw_background_with_tiled_map, initial_heroes, create_random_heroes, create_random_stores, \
-    render_score_message
+from game_funcs import initial_heroes, create_random_stores, \
+    render_score_message, draw_background_with_tiled_map, create_random_heroes
 from settings import game_settings
 
 
@@ -12,12 +13,14 @@ class World(object):
         self.entity_id = 0
         self.energy_stores = {}
         self.game_map = load_pygame(game_settings.MAP_DIR)
-        self.screen = screen
-        self.background = screen.subsurface(
-            (0, 0, game_settings.SCREEN_WIDTH, game_settings.SCREEN_HEIGHT),
-        )
         self.hero_nums = {"green": 0, "red": 0}
+        self.background_layer = Surface(game_settings.SCREEN_SIZE).convert_alpha()
+        self.player_layer = Surface(game_settings.SCREEN_SIZE).convert_alpha()
+        self.player_layer.fill((0, 0, 0, 0))
         # initial double-side heroes
+        draw_background_with_tiled_map(self.background_layer, self.game_map)
+        screen.blit(self.background_layer, game_settings.SCREEN_SIZE)
+
         initial_heroes(self)
 
     def add_entity(self, entity):
@@ -46,15 +49,19 @@ class World(object):
             entity.process(time_passed_seconds)
 
     def render(self, surface):
-        draw_background_with_tiled_map(surface, self.game_map)
-        render_score_message(surface)
+        surface.fill((255, 255, 255))
+        self.player_layer.fill((0, 0, 0, 0))
+        render_score_message(self.player_layer)
 
         # render entities
         for entity in self.energy_stores.values():
-            entity.render(surface)
+            entity.render(self.player_layer)
 
         for entity in self.entities.values():
-            entity.render(surface)
+            entity.render(self.player_layer)
+
+        surface.blit(self.background_layer, (0, 0))
+        surface.blit(self.player_layer, (0, 0))
 
     def get_close_entity(self, name, location, search_range=100.0):
         location = Vector2(*location)
