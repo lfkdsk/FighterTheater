@@ -1,4 +1,4 @@
-from game.game_funcs import display_message
+from game_funcs import display_message
 from states import *
 
 

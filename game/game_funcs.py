@@ -78,7 +78,7 @@ def create_hero(world, hero_type):
         hero_name = 'red-hero'
     else:
         raise KeyError("error type")
-    from game.entities import Hero
+    from entities import Hero
     hero = Hero(world, image, None, hero_type)
     hero.location = location
     hero.name = hero_name

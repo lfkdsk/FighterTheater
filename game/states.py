@@ -189,10 +189,8 @@ class HeroStateFighting(State):
         if enemy is None:
             return HERO_STATES[0]
 
-        search_range = game_settings.search_range
-        home_location = self.hero.get_home_location()
-
-        if enemy.location.get_distance_to(home_location) > search_range * 3:
+        if self.hero.health < 2 / 3 * game_settings.max_health:
+            self.hero.destination = self.hero.get_home_location()
             return HERO_STATES[0]
 
         return None

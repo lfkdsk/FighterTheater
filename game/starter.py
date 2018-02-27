@@ -30,6 +30,3 @@ def game_loop():
         pygame.display.update()
 
 
-if __name__ == '__main__':
-    game_loop()
-    pygame.quit()
