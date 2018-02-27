@@ -133,12 +133,12 @@ class Hero(Entity):
     def _draw_state_machine(self, surface):
         x, y = self.location
         w, h = self.image.get_size()
-        center = (x, y - h / 2 - 20)
+        center = (x - w, y - h / 2 - 22)
 
         display_message(
             text=str(self.brain.active_state),
             color=(0, 0, 0),
             screen=surface,
-            center=center,
-            size=32
+            rect=center,
+            size=22
         )

@@ -1,9 +1,10 @@
 import os
 from random import randint
 
+import psutil
 import pygame
 from gameobjects.vector2 import Vector2
-
+import datetime
 from settings import game_settings
 from states import HERO_STATES
 
@@ -32,18 +33,6 @@ def load_alpha_image(resource_img):
     return pygame.image.load(path)
 
 
-def display_message(screen, text, size, color, center):
-    largeText = pygame.font.Font(None, size)
-    TextSurf, TextRect = text_objects(text, largeText, color)
-    TextRect.center = center
-    screen.blit(TextSurf, TextRect)
-
-
-def text_objects(text, font, color):
-    textSurface = font.render(text, True, color)
-    return textSurface, textSurface.get_rect()
-
-
 green_hero_img = load_alpha_image('green_hero.png')
 red_hero_img = load_alpha_image('red_hero.png')
 graves_img = load_alpha_image('graves.png')
@@ -56,6 +45,19 @@ ENERGY_IMAGES = {
     'green-store': green_energy_img,
     'red-store': red_energy_img,
 }
+
+
+def display_message(screen, text, size, color, rect):
+    largeText = pygame.font.Font(None, size)
+    TextSurf, TextRect = text_objects(text, largeText, color)
+    TextRect.left = rect[0]
+    TextRect.top = rect[1]
+    screen.blit(TextSurf, TextRect)
+
+
+def text_objects(text, font, color):
+    textSurface = font.render(text, True, color)
+    return textSurface, textSurface.get_rect()
 
 
 def get_left_random_location():
@@ -144,20 +146,39 @@ def initial_heroes(world):
         create_random_store(world)
 
 
+start_time = datetime.datetime.now()
+
+
 def render_score_message(surface):
     # render scores
     display_message(
         text='G:{}'.format(game_settings.left_score),
         color=(255, 255, 255),
-        size=32,
-        center=(40, 20),
+        size=22,
+        rect=(20, 20),
         screen=surface
     )
 
     display_message(
         text='R:{}'.format(game_settings.right_score),
         color=(255, 255, 255),
-        size=32,
-        center=(40, 50),
+        size=22,
+        rect=(20, 40),
+        screen=surface
+    )
+
+    display_message(
+        text='Memory: {}'.format(psutil.Process(os.getpid()).memory_info().rss),
+        color=(255, 255, 255),
+        size=22,
+        rect=(20, 60),
+        screen=surface
+    )
+
+    display_message(
+        text='Time: {}'.format(datetime.datetime.now() - start_time),
+        color=(255, 255, 255),
+        size=22,
+        rect=(20, 80),
         screen=surface
     )

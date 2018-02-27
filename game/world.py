@@ -51,7 +51,6 @@ class World(object):
     def render(self, surface):
         surface.fill((255, 255, 255))
         self.player_layer.fill((0, 0, 0, 0))
-        render_score_message(self.player_layer)
 
         # render entities
         for entity in self.energy_stores.values():
@@ -60,6 +59,7 @@ class World(object):
         for entity in self.entities.values():
             entity.render(self.player_layer)
 
+        render_score_message(self.player_layer)
         surface.blit(self.background_layer, (0, 0))
         surface.blit(self.player_layer, (0, 0))
 
