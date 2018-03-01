@@ -1,4 +1,4 @@
-# StageFlight
+# FighterTheater
 
 ![show](art/show.gif)
 
